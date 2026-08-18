@@ -1,0 +1,35 @@
+// Crear mediante Modelado > Nueva tabla.
+Medidas Auditoria =
+DATATABLE ( "Grupo", STRING, { { "Auditoría" } } )
+
+// Cree las siguientes medidas dentro de Medidas Auditoria.
+Estado Pipeline = SELECTEDVALUE ( Pipeline[status], "SIN DATOS" )
+Última Ejecución = MAX ( Pipeline[finished_at] )
+
+Duración Pipeline (seg) =
+VAR Inicio = MAX ( Pipeline[started_at] )
+VAR Fin = MAX ( Pipeline[finished_at] )
+RETURN IF ( NOT ISBLANK ( Inicio ) && NOT ISBLANK ( Fin ), DATEDIFF ( Inicio, Fin, SECOND ) )
+
+Total Etapas = COUNTROWS ( Stages )
+Etapas Exitosas = CALCULATE ( [Total Etapas], KEEPFILTERS ( Stages[status] = "SUCCESS" ) )
+Etapas Fallidas = CALCULATE ( [Total Etapas], KEEPFILTERS ( Stages[status] = "FAILED" ) )
+Etapas Omitidas = CALCULATE ( [Total Etapas], KEEPFILTERS ( Stages[status] = "SKIPPED" ) )
+Tasa Éxito Etapas = DIVIDE ( [Etapas Exitosas], [Total Etapas], 0 )
+Duración Total Etapas (seg) = SUM ( Stages[duration_seconds] )
+
+Etapa Más Lenta =
+VAR Etapa = TOPN ( 1, Stages, Stages[duration_seconds], DESC, Stages[stage_name], ASC )
+RETURN CONCATENATEX ( Etapa, Stages[stage_name], ", " )
+
+Total Reglas Calidad = COUNTROWS ( Quality )
+Reglas Aprobadas = CALCULATE ( [Total Reglas Calidad], KEEPFILTERS ( Quality[status] = "PASSED" ) )
+Reglas Fallidas = CALCULATE ( [Total Reglas Calidad], KEEPFILTERS ( Quality[status] = "FAILED" ) )
+Tasa Aprobación Calidad = DIVIDE ( [Reglas Aprobadas], [Total Reglas Calidad], 0 )
+Tasa Fallos Calidad Ponderada = DIVIDE ( SUM ( Quality[records_failed] ), SUM ( Quality[records_evaluated] ), 0 )
+Umbral Promedio Calidad = AVERAGE ( Quality[allowed_failure_rate] )
+
+Total Artefactos = COUNTROWS ( Files )
+Artefactos Creados = CALCULATE ( [Total Artefactos], KEEPFILTERS ( Files[change_type] = "CREATED" ) )
+Artefactos Modificados = CALCULATE ( [Total Artefactos], KEEPFILTERS ( Files[change_type] = "MODIFIED" ) )
+Tamaño Artefactos (MB) = DIVIDE ( SUM ( Files[size_bytes] ), 1048576, 0 )

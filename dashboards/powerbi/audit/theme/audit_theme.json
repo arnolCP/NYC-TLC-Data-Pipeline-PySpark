@@ -1,0 +1,24 @@
+{
+  "name": "TLC Auditoria",
+  "dataColors": ["#146C94", "#19A7CE", "#4CAF50", "#F4B400", "#E53935", "#6D5DFB", "#607D8B"],
+  "background": "#F7F9FC",
+  "foreground": "#14213D",
+  "tableAccent": "#146C94",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "title": [{
+          "show": true,
+          "fontColor": { "solid": { "color": "#14213D" } },
+          "fontSize": 12,
+          "fontFamily": "Segoe UI Semibold"
+        }],
+        "labels": [{
+          "color": { "solid": { "color": "#14213D" } },
+          "fontSize": 10,
+          "fontFamily": "Segoe UI"
+        }]
+      }
+    }
+  }
+}
